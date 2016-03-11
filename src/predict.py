@@ -1,9 +1,6 @@
 import pickle
-from PIL import Image
-import os
-from os import listdir
-from os.path import isfile, join
 import sys
+import pandas as pd
 import numpy as np
 
 testFile = sys.argv[1]
@@ -33,5 +30,5 @@ def writeToFile(samples, y, predictionsFile):
 model = open(modelFile,'rb')
 net = pickle.load(model)
 y = net.predict(xTest)
-print y
+print(y)
 writeToFile(samples,y,predictionsFile)

@@ -71,7 +71,7 @@ net = NeuralNet(
   use_label_encoder = True,
   #use_label_encoder = False,
   regression = False,
-  max_epochs = 100,
+  max_epochs = 2,
   verbose = 1
 )
 

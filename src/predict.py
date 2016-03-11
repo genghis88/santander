@@ -8,7 +8,6 @@ modelFile = sys.argv[2]
 predictionsFile = sys.argv[3]
 
 xTest = pd.read_csv(testFile)
-xTest = xTest.drop('TARGET', 1)
 samples = xTest['ID']
 samples = samples.as_matrix()
 xTest = xTest.drop('ID', 1)

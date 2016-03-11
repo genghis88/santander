@@ -18,7 +18,7 @@ xTrain = xTrain.drop('TARGET', 1)
 xTrain = xTrain.drop('ID', 1)
 xTrain = xTrain.as_matrix()
 
-xTrain = xTrain.reshape(xTrain.shape[0], 1, xTrain.shape[1])
+xTrain = xTrain.reshape(xTrain.shape[0], 1, xTrain.shape[1]).astype('float32')
 print(xTrain.shape)
 
 xTrain /= xTrain.std(axis = None)

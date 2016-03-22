@@ -43,7 +43,7 @@ for i in range(num_classifiers):
   #trainX /= trainX.std(axis = None)
   #trainX -= trainX.mean()
 
-  rclf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03)
+  rclf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03, subsample=0.95)
   scores = cross_validation.cross_val_score(rclf, trainX, trainY, cv=5)
   print('classifier ' + str(i) + ' ' + str(scores))
 

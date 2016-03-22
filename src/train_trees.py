@@ -5,7 +5,7 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, MaxoutDense, Activation
 from keras.optimizers import SGD
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier, ExtraTreesClassifier, AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier, ExtraTreesClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn import cross_validation
 
 trainFile = sys.argv[1]
@@ -43,7 +43,7 @@ for i in range(num_classifiers):
   #trainX /= trainX.std(axis = None)
   #trainX -= trainX.mean()
 
-  rclf = RandomForestClassifier(n_estimators=100, max_features='auto', min_samples_leaf=2)
+  rclf = GradientBoostingClassifier(loss='deviance', n_estimators=350, learning_rate=0.03)
   scores = cross_validation.cross_val_score(rclf, trainX, trainY, cv=5)
   print('classifier ' + str(i) + ' ' + str(scores))
 

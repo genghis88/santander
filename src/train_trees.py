@@ -5,6 +5,8 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, MaxoutDense, Activation
 from keras.optimizers import SGD
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier, ExtraTreesClassifier, AdaBoostClassifier
+from sklearn import cross_validation
 
 trainFile = sys.argv[1]
 pickleFile = sys.argv[2]
@@ -21,16 +23,15 @@ for col in colsToBeRemoved:
   xTrain = xTrain.drop(col, 1)
 
 xTrain = xTrain.fillna(0)
+xTrain['var38'] = xTrain['var38'].apply(np.log)
 
-
-nets = []
-num_classifiers = 10
+classifiers = []
+num_classifiers = 100
 for i in range(num_classifiers):
   xZeroTrain = xTrain.loc[zeroClass].sample(n=3008)
   xOneTrain = xTrain.loc[oneClass]
   trainX = xZeroTrain.append(xOneTrain)
   trainX = trainX.reindex(np.random.permutation(trainX.index)).fillna(0)
-  #trainX = trainX.fillna(0)
   #trainX = pd.concat([xZeroTrain, xOneTrain])
   trainY = trainX['TARGET']
   trainY = trainY.as_matrix().astype('int32')
@@ -42,69 +43,32 @@ for i in range(num_classifiers):
   #trainX /= trainX.std(axis = None)
   #trainX -= trainX.mean()
 
-  net = Sequential()
-  net.add(Dense(160, input_dim=trainX.shape[1], init='uniform', activation='relu'))
-  net.add(Dropout(0.5))
-  net.add(Dense(80, init='uniform', activation='tanh'))
-  net.add(Dropout(0.5))
-  net.add(Dense(40, init='uniform', activation='tanh'))
-  net.add(Dropout(0.5))
-  net.add(Dense(20, init='uniform', activation='tanh'))
-  #net.add(Dense(2, init='uniform', activation='softmax'))
-  net.add(Dense(1, init='uniform', activation='sigmoid'))
+  rclf = RandomForestClassifier(n_estimators=100, max_features='auto', min_samples_leaf=2)
+  scores = cross_validation.cross_val_score(rclf, trainX, trainY, cv=5)
+  print('classifier ' + str(i) + ' ' + str(scores))
 
-  sgd = SGD(lr=0.01, momentum=0.9, nesterov=True)
-  net.compile(loss='mae',
-              optimizer='sgd', class_mode='binary')
+  rclf.fit(trainX, trainY)
+  classifiers.append(rclf)
 
-  net.fit(trainX, trainY,
-          nb_epoch=40,
-          batch_size=100,
-          verbose=1,
-          validation_split=0.2,
-          show_accuracy=True)
-
-  nets.append(net)
-
-
-
-'''print(pd.Series.value_counts(y))
 xTrain = xTrain.drop('TARGET', 1)
-xTrain['var38'] = xTrain['var38'].apply(np.log)
 xTrain = xTrain.as_matrix()
-#xTrain = xTrain.reshape(xTrain.shape[0], 1, xTrain.shape[1]).astype('float32')
 xTrain = xTrain.reshape(xTrain.shape[0], xTrain.shape[1]).astype('float32')
 print(xTrain.shape)
-#xTrain /= xTrain.std(axis = None)
-#xTrain -= xTrain.mean()
-y = y.as_matrix().astype('int32')
-print(y.shape)
-#y = map(ord, y)
 
-net = Sequential()
-net.add(Dense(160, input_dim=xTrain.shape[1], init='uniform', activation='relu'))
-net.add(Dropout(0.5))
-net.add(Dense(80, init='uniform', activation='tanh'))
-net.add(Dropout(0.5))
-net.add(Dense(40, init='uniform', activation='tanh'))
-net.add(Dropout(0.5))
-net.add(Dense(20, init='uniform', activation='tanh'))
-#net.add(Dense(2, init='uniform', activation='softmax'))
-net.add(Dense(1, init='uniform', activation='sigmoid'))
+predictions = np.zeros((xTrain.shape[0], num_classifiers), dtype='int32')
+for ind in range(num_classifiers):
+  predictions[:,ind] = classifiers[ind].predict(xTrain)
 
-sgd = SGD(lr=0.01, momentum=0.9, nesterov=True)
-net.compile(loss='mae',
-              optimizer='sgd', class_mode='binary')
+def getSatisfaction(total, totalLimit):
+  if total < totalLimit:
+    return 0
+  return 1
 
-net.fit(xTrain, y,
-          nb_epoch=100,
-          batch_size=100,
-          verbose=1,
-          validation_split=0.2,
-          show_accuracy=True)'''
-
-#score = model.evaluate(X_test, y_test, batch_size=16)
+predictY = np.sum(predictions, axis=1)
+satifactionFunc = np.vectorize(getSatisfaction)
+predictY = satifactionFunc(predictY, num_classifiers/2)
+print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])
 
 with open(pickleFile,'wb') as f:
   sys.setrecursionlimit(20000)
-  pickle.dump(nets, f)
+  pickle.dump(classifiers, f)

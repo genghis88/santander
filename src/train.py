@@ -94,13 +94,14 @@ pool4Layer = layers.MaxPool1DLayer(conv4Layer, pool_size=2)
 dropout4Layer = layers.DropoutLayer(pool4Layer, p=0.2)
 
 conv5Layer = layers.Conv1DLayer(dropout4Layer, num_filters=512, filter_size=5)'''
-
-inputLayer = layers.InputLayer(shape=(None, 1, xTrain.shape[1] - 1))
-hidden1Layer = layers.DenseLayer(inputLayer, num_units=180, nonlinearity=elu)
+#
+#inputLayer = layers.InputLayer(shape=(None, 1, xTrain.shape[1] - 1)
+inputLayer = layers.InputLayer(shape=(None, 1, xTrain.shape[1]))
+hidden1Layer = layers.DenseLayer(inputLayer, num_units=160, nonlinearity=elu)
 dropout1Layer = layers.DropoutLayer(hidden1Layer, p=0.5)
-hidden2Layer = layers.DenseLayer(dropout1Layer, num_units=90, nonlinearity=tanh)
+hidden2Layer = layers.DenseLayer(dropout1Layer, num_units=80, nonlinearity=tanh)
 dropout2Layer = layers.DropoutLayer(hidden2Layer, p=0.5)
-hidden3Layer = layers.DenseLayer(dropout2Layer, num_units=45, nonlinearity=tanh)
+hidden3Layer = layers.DenseLayer(dropout2Layer, num_units=40, nonlinearity=tanh)
 outputLayer = layers.DenseLayer(hidden3Layer, num_units=2, nonlinearity=softmax)
 
 '''hidden3Layer = layers.DenseLayer(hidden2Layer, num_units=2048, nonlinearity=tanh)
@@ -229,6 +230,6 @@ print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])'''
 
 with open(pickleFile,'wb') as f:
   sys.setrecursionlimit(20000)
-  pickle.dump(nets, f)
+  pickle.dump(net, f)
   #pickle.dump(clf, f)
   #pickle.dump(classifiers, f)

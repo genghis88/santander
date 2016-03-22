@@ -17,10 +17,12 @@ colsToBeRemoved = ['ind_var2_0', 'ind_var2', 'ind_var27_0', 'ind_var28_0', 'ind_
 for col in colsToBeRemoved:
   xTest = xTest.drop(col, 1)
 
+xTest = xTest.fillna(0)
+xTest['var38'] = xTest['var38'].apply(np.log)
+
 xTest = xTest.as_matrix()
 
-xTest = xTest.reshape(xTest.shape[0], 1, xTest.shape[1]).astype('float32')
-#xTest = xTest.reshape(xTest.shape[0], xTest.shape[1]).astype('float32')
+xTest = xTest.reshape(xTest.shape[0], xTest.shape[1]).astype('float32')
 print(xTest.shape)
 
 #xTest /= xTest.std(axis = None)
@@ -34,42 +36,12 @@ def writeToFile(samples, y, predictionsFile):
       output.write(str(sample) + ',' + str(prediction) + '\n')
 
 model = open(modelFile,'rb')
-net = pickle.load(model)
-'''nets = pickle.load(model)
 
-print(nets)
-
-predictions = np.zeros((xTest.shape[0], len(nets)), dtype='int32')
-for ind in range(len(nets)):
-  predictions[:,ind] = nets[ind].predict(xTest)
-
-def getSatisfaction(total, totalLimit):
-  if total < totalLimit:
-    return 0
-  return 1
-
-predictY = np.sum(predictions, axis=1)
-satifactionFunc = np.vectorize(getSatisfaction)
-predictY = satifactionFunc(predictY, 50)'''
-
-def getSatisfaction(total, totalLimit):
-  if total < totalLimit:
-    return 0
-  return 1
-
-satifactionFunc = np.vectorize(getSatisfaction)
-predictY = net.predict(xTest)
-#predictY = satifactionFunc(predictY, 0.50)
-'''classifiers = pickle.load(model)
+classifiers = pickle.load(model)
 predictions = np.zeros((xTest.shape[0], len(classifiers)), dtype='int32')
 for ind in range(len(classifiers)):
   predictions[:,ind] = classifiers[ind].predict(xTest)
 
-print(predictions.shape)
-
-#from scipy import stats
-#predictY = stats.mode(predictions, axis=1).mode
-
 def getSatisfaction(total, totalLimit):
   if total < totalLimit:
     return 0
@@ -77,7 +49,7 @@ def getSatisfaction(total, totalLimit):
 
 predictY = np.sum(predictions, axis=1)
 satifactionFunc = np.vectorize(getSatisfaction)
-predictY = satifactionFunc(predictY, 50)'''
+predictY = satifactionFunc(predictY, len(classifiers)/2)
 
 print(predictY)
 print(predictY.shape)

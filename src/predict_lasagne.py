@@ -49,7 +49,7 @@ def getSatisfaction(total, totalLimit):
 
 predictY = np.sum(predictions, axis=1)
 satifactionFunc = np.vectorize(getSatisfaction)
-predictY = satifactionFunc(predictY, len(nets)/2)
+predictY = satifactionFunc(predictY, len(nets)/3)
 
 print(predictY)
 print(predictY.shape)

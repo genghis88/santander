@@ -25,7 +25,7 @@ for col in colsToBeRemoved:
 xTrain = xTrain.fillna(0)
 xTrain['var38'] = xTrain['var38'].apply(np.log)
 
-classifiers = []
+'''classifiers = []
 num_classifiers = 100
 for i in range(num_classifiers):
   xZeroTrain = xTrain.loc[zeroClass].sample(n=3008)
@@ -48,14 +48,21 @@ for i in range(num_classifiers):
   print('classifier ' + str(i) + ' ' + str(scores))
 
   rclf.fit(trainX, trainY)
-  classifiers.append(rclf)
+  classifiers.append(rclf)'''
 
 xTrain = xTrain.drop('TARGET', 1)
 xTrain = xTrain.as_matrix()
 xTrain = xTrain.reshape(xTrain.shape[0], xTrain.shape[1]).astype('float32')
+y = y.as_matrix().astype('int32')
 print(xTrain.shape)
 
-predictions = np.zeros((xTrain.shape[0], num_classifiers), dtype='int32')
+rclf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03, subsample=0.95)
+scores = cross_validation.cross_val_score(rclf, xTrain, y, cv=5)
+print(scores)
+
+rclf.fit(xTrain, y)
+
+'''predictions = np.zeros((xTrain.shape[0], num_classifiers), dtype='int32')
 for ind in range(num_classifiers):
   predictions[:,ind] = classifiers[ind].predict(xTrain)
 
@@ -67,8 +74,9 @@ def getSatisfaction(total, totalLimit):
 predictY = np.sum(predictions, axis=1)
 satifactionFunc = np.vectorize(getSatisfaction)
 predictY = satifactionFunc(predictY, num_classifiers/2)
-print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])
+print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])'''
 
 with open(pickleFile,'wb') as f:
   sys.setrecursionlimit(20000)
-  pickle.dump(classifiers, f)
+  #pickle.dump(classifiers, f)
+  pickle.dump(rclf, f)

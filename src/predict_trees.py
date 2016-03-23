@@ -37,7 +37,7 @@ def writeToFile(samples, y, predictionsFile):
 
 model = open(modelFile,'rb')
 
-classifiers = pickle.load(model)
+'''classifiers = pickle.load(model)
 predictions = np.zeros((xTest.shape[0], len(classifiers)), dtype='int32')
 for ind in range(len(classifiers)):
   predictions[:,ind] = classifiers[ind].predict(xTest)
@@ -52,6 +52,9 @@ satifactionFunc = np.vectorize(getSatisfaction)
 predictY = satifactionFunc(predictY, len(classifiers)/2)
 
 print(predictY)
-print(predictY.shape)
+print(predictY.shape)'''
+
+rclf = pickle.load(model)
+predictY = rclf.predict(xTest)
 
 writeToFile(samples,predictY,predictionsFile)

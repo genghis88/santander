@@ -2,9 +2,25 @@ import pandas as pd
 import pickle
 import sys
 import numpy as np
+import keras as K
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, MaxoutDense, Activation
 from keras.optimizers import SGD
+
+import theano
+import theano.tensor as T
+
+_EPSILON = 1.0e-8
+
+def custom_obj(target, output):
+  output = T.clip(output, _EPSILON, 1.0 - _EPSILON)
+  return T.mean(T.nnet.binary_crossentropy(output, target), axis=-1, keepdims=False, dtype=None)
+
+def custom_objective(target, output):
+  indices0 = np.where(target == 0)
+  indices1 = np.where(target != 0)
+  print(indices0)
+  return (custom_obj(target[indices0], output[indices0]) + custom_obj(target[indices1], output[indices1])) / 2.0
 
 trainFile = sys.argv[1]
 pickleFile = sys.argv[2]
@@ -23,7 +39,7 @@ for col in colsToBeRemoved:
 xTrain = xTrain.fillna(0)
 
 
-nets = []
+'''nets = []
 num_classifiers = 10
 for i in range(num_classifiers):
   xZeroTrain = xTrain.loc[zeroClass].sample(n=3008)
@@ -64,11 +80,10 @@ for i in range(num_classifiers):
           validation_split=0.2,
           show_accuracy=True)
 
-  nets.append(net)
+  nets.append(net)'''
 
 
-
-'''print(pd.Series.value_counts(y))
+print(pd.Series.value_counts(y))
 xTrain = xTrain.drop('TARGET', 1)
 xTrain['var38'] = xTrain['var38'].apply(np.log)
 xTrain = xTrain.as_matrix()
@@ -93,7 +108,7 @@ net.add(Dense(20, init='uniform', activation='tanh'))
 net.add(Dense(1, init='uniform', activation='sigmoid'))
 
 sgd = SGD(lr=0.01, momentum=0.9, nesterov=True)
-net.compile(loss='mae',
+net.compile(loss=custom_objective,
               optimizer='sgd', class_mode='binary')
 
 net.fit(xTrain, y,
@@ -101,10 +116,10 @@ net.fit(xTrain, y,
           batch_size=100,
           verbose=1,
           validation_split=0.2,
-          show_accuracy=True)'''
+          show_accuracy=True)
 
 #score = model.evaluate(X_test, y_test, batch_size=16)
 
 with open(pickleFile,'wb') as f:
   sys.setrecursionlimit(20000)
-  pickle.dump(nets, f)
+  pickle.dump(net, f)

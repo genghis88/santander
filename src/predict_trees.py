@@ -54,7 +54,9 @@ predictY = satifactionFunc(predictY, len(classifiers)/2)
 print(predictY)
 print(predictY.shape)'''
 
-rclf = pickle.load(model)
-predictY = rclf.predict(xTest)
+clf = pickle.load(model)
+#predictY = clf.predict(xTest)
+predictY = clf.predict_proba(xTest)[:,1]
+print(predictY)
 
 writeToFile(samples,predictY,predictionsFile)

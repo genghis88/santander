@@ -7,6 +7,7 @@ from keras.layers import Dense, Dropout, MaxoutDense, Activation
 from keras.optimizers import SGD
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier, ExtraTreesClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn import cross_validation
+import xgboost as xgb
 
 trainFile = sys.argv[1]
 pickleFile = sys.argv[2]
@@ -43,12 +44,12 @@ for i in range(num_classifiers):
   #trainX /= trainX.std(axis = None)
   #trainX -= trainX.mean()
 
-  rclf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03, subsample=0.95)
+  clf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03, subsample=0.95)
   scores = cross_validation.cross_val_score(rclf, trainX, trainY, cv=5)
   print('classifier ' + str(i) + ' ' + str(scores))
 
-  rclf.fit(trainX, trainY)
-  classifiers.append(rclf)'''
+  clf.fit(trainX, trainY)
+  classifiers.append(clf)'''
 
 xTrain = xTrain.drop('TARGET', 1)
 xTrain = xTrain.as_matrix()
@@ -56,11 +57,14 @@ xTrain = xTrain.reshape(xTrain.shape[0], xTrain.shape[1]).astype('float32')
 y = y.as_matrix().astype('int32')
 print(xTrain.shape)
 
-rclf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03, subsample=0.95)
-scores = cross_validation.cross_val_score(rclf, xTrain, y, cv=5)
+#clf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03, subsample=0.95)
+#scores = cross_validation.cross_val_score(clf, xTrain, y, cv=5)
+#print(scores)
+clf = xgb.XGBClassifier(missing=np.nan, max_depth=5, n_estimators=350, learning_rate=0.03, nthread=4, subsample=0.95, colsample_bytree=0.85, seed=4242)
+scores = cross_validation.cross_val_score(clf, xTrain, y, cv=5, scoring='roc_auc')
 print(scores)
 
-rclf.fit(xTrain, y)
+clf.fit(xTrain, y, eval_metric='auc')
 
 '''predictions = np.zeros((xTrain.shape[0], num_classifiers), dtype='int32')
 for ind in range(num_classifiers):
@@ -79,4 +83,4 @@ print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])'''
 with open(pickleFile,'wb') as f:
   sys.setrecursionlimit(20000)
   #pickle.dump(classifiers, f)
-  pickle.dump(rclf, f)
+  pickle.dump(clf, f)

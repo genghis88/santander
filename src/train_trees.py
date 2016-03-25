@@ -61,10 +61,12 @@ print(xTrain.shape)
 #scores = cross_validation.cross_val_score(clf, xTrain, y, cv=5)
 #print(scores)
 clf = xgb.XGBClassifier(missing=np.nan, max_depth=5, n_estimators=350, learning_rate=0.03, nthread=4, subsample=0.95, colsample_bytree=0.85, seed=4242)
-scores = cross_validation.cross_val_score(clf, xTrain, y, cv=5, scoring='roc_auc')
-print(scores)
+#scores = cross_validation.cross_val_score(clf, xTrain, y, cv=5, scoring='roc_auc')
+#print(scores)
 
-clf.fit(xTrain, y, eval_metric='auc')
+X_fit, X_eval, y_fit, y_eval= cross_validation.train_test_split(xTrain, y, test_size=0.3)
+clf.fit(X_fit, y_fit, early_stopping_rounds=20, eval_metric='auc', eval_set=[(X_eval, y_eval)])
+#clf.fit(xTrain, y, eval_metric='auc')
 
 '''predictions = np.zeros((xTrain.shape[0], num_classifiers), dtype='int32')
 for ind in range(num_classifiers):

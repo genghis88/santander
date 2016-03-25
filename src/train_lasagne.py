@@ -32,7 +32,7 @@ for col in colsToBeRemoved:
 xTrain = xTrain.fillna(0)
 xTrain['var38'] = xTrain['var38'].apply(np.log)
 
-nets = []
+'''nets = []
 num_classifiers = 100
 for i in range(num_classifiers):
   xZeroTrain = xTrain.loc[zeroClass].sample(n=3008)
@@ -51,31 +51,6 @@ for i in range(num_classifiers):
   #trainX -= trainX.mean()
 
   inputLayer = layers.InputLayer(shape=(None, 1, trainX.shape[2]))
-
-  '''conv1Layer = layers.Conv1DLayer(inputLayer, num_filters=10, filter_size=4)
-  conv2Layer = layers.Conv1DLayer(conv1Layer, num_filters=10, filter_size=4)
-  pool1Layer = layers.MaxPool1DLayer(conv2Layer, pool_size=2)
-  dropout1Layer = layers.DropoutLayer(pool1Layer, p=0.4)
-
-  conv3Layer = layers.Conv1DLayer(dropout1Layer, num_filters=20, filter_size=3)
-  pool2Layer = layers.MaxPool1DLayer(conv3Layer, pool_size=2)
-  dropout2Layer = layers.DropoutLayer(pool2Layer, p=0.4)
-
-  conv4Layer = layers.Conv1DLayer(dropout2Layer, num_filters=40, filter_size=3)
-  pool3Layer = layers.MaxPool1DLayer(conv4Layer, pool_size=2)
-  dropout3Layer = layers.DropoutLayer(pool3Layer, p=0.4)
-
-  conv5Layer = layers.Conv1DLayer(dropout3Layer, num_filters=80, filter_size=3)
-  pool4Layer = layers.MaxPool1DLayer(conv5Layer, pool_size=2)
-  dropout4Layer = layers.DropoutLayer(pool4Layer, p=0.4)
-
-  conv6Layer = layers.Conv1DLayer(dropout4Layer, num_filters=160, filter_size=4)
-  pool5Layer = layers.MaxPool1DLayer(conv6Layer, pool_size=2)
-  dropout5Layer = layers.DropoutLayer(pool5Layer, p=0.4)
-
-  conv7Layer = layers.Conv1DLayer(dropout5Layer, num_filters=320, filter_size=4)
-  pool6Layer = layers.MaxPool1DLayer(conv7Layer, pool_size=2)
-  dropout6Layer = layers.DropoutLayer(pool6Layer, p=0.4)'''
 
   #hidden1Layer = layers.DenseLayer(dropout6Layer, num_units=640, nonlinearity=elu)
   hidden1Layer = layers.DenseLayer(inputLayer, num_units=160, nonlinearity=elu)
@@ -114,11 +89,6 @@ for i in range(num_classifiers):
   net.fit(trainX, trainY)
   nets.append(net)
 
-xTrain = xTrain.drop('TARGET', 1)
-xTrain = xTrain.as_matrix()
-xTrain = xTrain.reshape(xTrain.shape[0], 1, xTrain.shape[1]).astype('float32')
-print(xTrain.shape)
-
 predictions = np.zeros((xTrain.shape[0], num_classifiers), dtype='int32')
 for ind in range(num_classifiers):
   predictions[:,ind] = nets[ind].predict(xTrain)
@@ -131,9 +101,40 @@ def getSatisfaction(total, totalLimit):
 predictY = np.sum(predictions, axis=1)
 satifactionFunc = np.vectorize(getSatisfaction)
 predictY = satifactionFunc(predictY, num_classifiers/2)
-print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])
+print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])'''
 
-'''inputLayer = layers.InputLayer(shape=(None, 1, xTrain.shape[2]))
+'''conv1Layer = layers.Conv1DLayer(inputLayer, num_filters=10, filter_size=4)
+conv2Layer = layers.Conv1DLayer(conv1Layer, num_filters=10, filter_size=4)
+pool1Layer = layers.MaxPool1DLayer(conv2Layer, pool_size=2)
+dropout1Layer = layers.DropoutLayer(pool1Layer, p=0.4)
+
+conv3Layer = layers.Conv1DLayer(dropout1Layer, num_filters=20, filter_size=3)
+pool2Layer = layers.MaxPool1DLayer(conv3Layer, pool_size=2)
+dropout2Layer = layers.DropoutLayer(pool2Layer, p=0.4)
+
+conv4Layer = layers.Conv1DLayer(dropout2Layer, num_filters=40, filter_size=3)
+pool3Layer = layers.MaxPool1DLayer(conv4Layer, pool_size=2)
+dropout3Layer = layers.DropoutLayer(pool3Layer, p=0.4)
+
+conv5Layer = layers.Conv1DLayer(dropout3Layer, num_filters=80, filter_size=3)
+pool4Layer = layers.MaxPool1DLayer(conv5Layer, pool_size=2)
+dropout4Layer = layers.DropoutLayer(pool4Layer, p=0.4)
+
+conv6Layer = layers.Conv1DLayer(dropout4Layer, num_filters=160, filter_size=4)
+pool5Layer = layers.MaxPool1DLayer(conv6Layer, pool_size=2)
+dropout5Layer = layers.DropoutLayer(pool5Layer, p=0.4)
+
+conv7Layer = layers.Conv1DLayer(dropout5Layer, num_filters=320, filter_size=4)
+pool6Layer = layers.MaxPool1DLayer(conv7Layer, pool_size=2)
+dropout6Layer = layers.DropoutLayer(pool6Layer, p=0.4)'''
+
+xTrain = xTrain.drop('TARGET', 1)
+xTrain = xTrain.as_matrix()
+xTrain = xTrain.reshape(xTrain.shape[0], 1, xTrain.shape[1]).astype('float32')
+print(xTrain.shape)
+y = y.as_matrix().astype('int32')
+
+inputLayer = layers.InputLayer(shape=(None, 1, xTrain.shape[2]))
 #inputLayer = layers.InputLayer(shape=(None, xTrain.shape[1]))
 hidden1Layer = layers.DenseLayer(inputLayer, num_units=160, nonlinearity=elu)
 dropout1Layer = layers.DropoutLayer(hidden1Layer, p=0.5)
@@ -162,8 +163,8 @@ net = NeuralNet(
   verbose = 1
 )
 
-net.fit(xTrain, y)'''
+net.fit(xTrain, y)
 
 with open(pickleFile,'wb') as f:
   sys.setrecursionlimit(20000)
-  pickle.dump(nets, f)
+  pickle.dump(net, f)

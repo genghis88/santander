@@ -65,11 +65,6 @@ zeroClass = xTrain['TARGET'] == 0
 oneClass = xTrain['TARGET'] == 1
 xTrain = xTrain.drop('ID', 1)
 
-colsToBeRemoved = ['ind_var2_0', 'ind_var2', 'ind_var27_0', 'ind_var28_0', 'ind_var28', 'ind_var27', 'ind_var41', 'ind_var46_0', 'ind_var46', 'num_var27_0', 'num_var28_0', 'num_var28', 'num_var27', 'num_var41', 'num_var46_0', 'num_var46', 'saldo_var28', 'saldo_var27', 'saldo_var41', 'saldo_var46', 'imp_amort_var18_hace3', 'imp_amort_var34_hace3', 'imp_reemb_var13_hace3', 'imp_reemb_var33_hace3', 'imp_trasp_var17_out_hace3', 'imp_trasp_var33_out_hace3', 'num_var2_0_ult1', 'num_var2_ult1', 'num_reemb_var13_hace3', 'num_reemb_var33_hace3', 'num_trasp_var17_out_hace3', 'num_trasp_var33_out_hace3', 'saldo_var2_ult1', 'saldo_medio_var13_medio_hace3', 'ind_var29_0', 'ind_var29', 'ind_var13_medio', 'ind_var18', 'ind_var26', 'ind_var25', 'ind_var32', 'ind_var34', 'ind_var37', 'ind_var39', 'num_var29_0', 'num_var29', 'num_var13_medio', 'num_var18', 'num_var26', 'num_var25', 'num_var32', 'num_var34', 'num_var37', 'num_var39', 'saldo_var29', 'saldo_medio_var13_medio_ult1', 'delta_num_reemb_var13_1y3', 'delta_num_reemb_var17_1y3', 'delta_num_reemb_var33_1y3', 'delta_num_trasp_var17_in_1y3', 'delta_num_trasp_var17_out_1y3', 'delta_num_trasp_var33_in_1y3', 'delta_num_trasp_var33_out_1y3']
-
-for col in colsToBeRemoved:
-  xTrain = xTrain.drop(col, 1)
-
 xTrain = xTrain.fillna(0)
 
 batch_size = 100
@@ -120,70 +115,80 @@ for i in range(num_classifiers):
 
 print(pd.Series.value_counts(y))
 xTrain = xTrain.drop('TARGET', 1)
-xTrain['var38'] = xTrain['var38'].apply(np.log)
 xTrain = xTrain.as_matrix()
 #xTrain = xTrain.reshape(xTrain.shape[0], xTrain.shape[1], 1).astype('float32')
 xTrain = xTrain.reshape(xTrain.shape[0], xTrain.shape[1]).astype('float32')
 print(xTrain.shape)
-#xTrain /= xTrain.std(axis = None)
-#xTrain -= xTrain.mean()
 y = y.as_matrix().astype('int32')
 print(y.shape)
-#y = map(ord, y)
 
 '''net = Sequential()
-net.add(Convolution1D(nb_filter=20, filter_length=7, border_mode='valid', input_shape=(xTrain.shape[1],1), init='uniform'))
-#net.add(Convolution1D(20, 4, init='uniform'))
+net.add(Convolution1D(nb_filter=100, filter_length=3, border_mode='valid', input_shape=(xTrain.shape[1],1), init='uniform'))
+net.add(ELU())
 net.add(MaxPooling1D(2))
 net.add(Dropout(0.5))
+#net.add(Convolution1D(50, 5, init='uniform', activation='tanh'))
+#net.add(MaxPooling1D(2))
+#net.add(Dropout(0.5))
+#net.add(Convolution1D(80, 5, init='uniform'))
+#net.add(MaxPooling1D(2))
+#net.add(Dropout(0.5))
 net.add(Flatten())
-net.add(Dense(3000, init='uniform'))
-net.add(ELU())
-net.add(Dropout(0.5))
-net.add(Dense(1000, init='uniform', activation='tanh'))
-net.add(Dropout(0.5))
-net.add(Dense(500, init='uniform', activation='tanh'))
-net.add(Dropout(0.5))
-net.add(Dense(200, init='uniform'))
-net.add(ELU())
+net.add(Dense(200, init='uniform', activation='tanh'))
+#net.add(ELU())
 net.add(Dropout(0.5))
 net.add(Dense(100, init='uniform', activation='tanh'))
 net.add(Dropout(0.5))
-net.add(Dense(40, init='uniform', activation='tanh'))
+net.add(Dense(50, init='uniform'))
+net.add(ELU())
+net.add(Dropout(0.5))
+net.add(Dense(25, init='uniform', activation='tanh'))
+#net.add(ELU())
+#net.add(Dropout(0.5))
+#net.add(Dense(5, init='uniform', activation='tanh'))
+#net.add(Dropout(0.5))
+#net.add(Dense(40, init='uniform', activation='tanh'))
 #net.add(Dense(2, init='uniform', activation='softmax'))
 net.add(Dense(1, init='uniform', activation='sigmoid'))'''
 
 net = Sequential()
-net.add(Dense(320, input_dim=xTrain.shape[1], init='uniform'))
+net.add(Dense(320, input_dim=xTrain.shape[1], init='glorot_uniform'))
 net.add(ELU())
 net.add(Dropout(0.5))
-net.add(Dense(160, init='uniform', activation='tanh'))
-'''net.add(Dropout(0.5))
-net.add(Dense(80, init='uniform', activation='tanh'))
+net.add(Dense(160, init='glorot_uniform', activation='sigmoid'))
 net.add(Dropout(0.5))
-net.add(Dense(40, init='uniform'))
+net.add(Dense(80, init='glorot_uniform'))
 net.add(ELU())
 net.add(Dropout(0.5))
-net.add(Dense(20, init='uniform', activation='tanh'))
+net.add(Dense(40, init='glorot_uniform', activation='tanh'))
+'''#net.add(Dropout(0.5))
+net.add(Dense(20, init='uniform'))
+net.add(ELU())
 net.add(Dropout(0.5))
 net.add(Dense(10, init='uniform', activation='tanh'))
 #net.add(Dense(2, init='uniform', activation='softmax'))'''
 net.add(Dense(1, init='uniform', activation='sigmoid'))
 
 #optimizer = SGD(lr=0.01, momentum=0.9, nesterov=True)
-#optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-06
-optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-04)
+#optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-06)
+optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-10)
+#optimizer = Adagrad(lr=0.01, epsilon=1e-06)
+#optimizer =  Adadelta(lr=1.0, rho=0.95, epsilon=1e-06)
+#optimizer = Adamax(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
 #net.compile(loss=binary_crossentropy_with_ranking,
 #              optimizer=optimizer, class_mode='binary')
 net.compile(loss='binary_crossentropy',
                optimizer=optimizer, class_mode='binary')
+#net.compile(loss='hinge',
+#               optimizer=optimizer, class_mode='binary')
 
 net.fit(xTrain, y,
-          nb_epoch=100,
+          nb_epoch=30,
           batch_size=batch_size,
           verbose=1,
           validation_split=0.2,
           show_accuracy=True,
+          #shuffle=True,
           class_weight={0:0.0396, 1:0.9604})
 
 #score = model.evaluate(X_test, y_test, batch_size=16)

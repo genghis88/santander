@@ -31,17 +31,17 @@ def getSatisfaction(total, totalLimit):
     return 0
   return 1
 
-predictY = np.sum(predictions, axis=1) / len(classifiers)
+predictY = np.sum(predictions, axis=0) / len(classifiers)
 #satifactionFunc = np.vectorize(getSatisfaction)
 #predictY = satifactionFunc(predictY, len(classifiers)/2)
 
 print(predictY)
 print(predictY.shape)
 
-#clf = pickle.load(model)
+'''clf = pickle.load(model)
 #predictY = clf.predict(xTest)
-#predictY = clf.predict_proba(xTest)[:,1]
-#print(predictY)
+predictY = clf.predict_proba(xTest)[:,1]
+print(predictY)'''
 
 predictions = pd.DataFrame(index=samples)
 predictions['TARGET'] = predictY

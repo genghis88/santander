@@ -37,8 +37,8 @@ for i in range(num_classifiers):
   print(trainX.shape)
 
   #clf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03, subsample=0.95)
-  #clf = RandomForestClassifier(n_jobs=-1, n_estimators=350, max_features='auto')
-  clf = xgb.XGBClassifier(missing=np.nan, max_depth=5, n_estimators=500, learning_rate=0.01, nthread=4, subsample=0.95, colsample_bytree=0.85)
+  clf = RandomForestClassifier(n_jobs=-1, n_estimators=350, max_features='auto')
+  #clf = xgb.XGBClassifier(missing=np.nan, max_depth=5, n_estimators=500, learning_rate=0.01, nthread=4, subsample=0.95, colsample_bytree=0.85)
   scores = cross_validation.cross_val_score(clf, trainX, trainY, cv=5, scoring='roc_auc')
   print('classifier ' + str(i) + ' ' + str(scores))
 
@@ -71,7 +71,7 @@ def getSatisfaction(total, totalLimit):
     return 0
   return 1
 
-predictY = np.sum(predictions, axis=1) / num_classifiers
+predictY = np.sum(predictions, axis=0) / num_classifiers
 #satifactionFunc = np.vectorize(getSatisfaction)
 #predictY = satifactionFunc(predictY, num_classifiers/2)
 #print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])

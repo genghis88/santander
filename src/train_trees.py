@@ -71,7 +71,7 @@ def getSatisfaction(total, totalLimit):
     return 0
   return 1
 
-predictY = np.sum(predictions, axis=0) / num_classifiers
+predictY = np.sum(predictions, axis=1) / (num_classifiers * 1.0)
 #satifactionFunc = np.vectorize(getSatisfaction)
 #predictY = satifactionFunc(predictY, num_classifiers/2)
 #print(np.count_nonzero(y - predictY) * 1.0 / xTrain.shape[0])

@@ -31,7 +31,7 @@ def getSatisfaction(total, totalLimit):
     return 0
   return 1
 
-predictY = np.sum(predictions, axis=0) / len(classifiers)
+predictY = np.sum(predictions, axis=1) / (len(classifiers) * 1.0)
 #satifactionFunc = np.vectorize(getSatisfaction)
 #predictY = satifactionFunc(predictY, len(classifiers)/2)
 

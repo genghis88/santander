@@ -7,7 +7,7 @@ from keras.layers import Dense, Dropout, MaxoutDense, Activation
 from keras.optimizers import SGD
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier, ExtraTreesClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn import cross_validation
-#import xgboost as xgb
+import xgboost as xgb
 
 trainFile = sys.argv[1]
 pickleFile = sys.argv[2]
@@ -37,7 +37,8 @@ for i in range(num_classifiers):
   print(trainX.shape)
 
   #clf = GradientBoostingClassifier(loss='deviance', max_depth=5, n_estimators=350, learning_rate=0.03, subsample=0.95)
-  clf = RandomForestClassifier(n_jobs=-1, n_estimators=350, max_features='auto')
+  #clf = RandomForestClassifier(n_jobs=-1, n_estimators=350, max_features='auto')
+  clf = xgb.XGBClassifier(missing=np.nan, max_depth=5, n_estimators=500, learning_rate=0.01, nthread=4, subsample=0.95, colsample_bytree=0.85)
   scores = cross_validation.cross_val_score(clf, trainX, trainY, cv=5, scoring='roc_auc')
   print('classifier ' + str(i) + ' ' + str(scores))
 

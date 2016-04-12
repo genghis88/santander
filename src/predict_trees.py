@@ -21,7 +21,7 @@ print(xTest.shape)
 
 model = open(modelFile,'rb')
 
-classifiers = pickle.load(model)
+'''classifiers = pickle.load(model)
 predictions = np.zeros((xTest.shape[0], len(classifiers)), dtype='int32')
 for ind in range(len(classifiers)):
   predictions[:,ind] = classifiers[ind].predict_proba(xTest)[:,1]
@@ -36,12 +36,17 @@ predictY = np.sum(predictions, axis=1) / (len(classifiers) * 1.0)
 #predictY = satifactionFunc(predictY, len(classifiers)/2)
 
 print(predictY)
-print(predictY.shape)
+print(predictY.shape)'''
 
-'''clf = pickle.load(model)
+clf = pickle.load(model)
 #predictY = clf.predict(xTest)
 predictY = clf.predict_proba(xTest)[:,1]
-print(predictY)'''
+print(predictY)
+
+#from sklearn.preprocessing import MinMaxScaler
+#minMaxScaler = MinMaxScaler()
+#predictY = minMaxScaler.fit_transform(predictY)
+#print(predictY)
 
 predictions = pd.DataFrame(index=samples)
 predictions['TARGET'] = predictY

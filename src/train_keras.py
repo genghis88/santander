@@ -6,7 +6,7 @@ import keras
 import keras.backend as K
 import classification
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, MaxoutDense, Activation, Convolution1D, MaxPooling1D, Flatten, RepeatVector
+from keras.layers import Dense, Dropout, MaxoutDense, Activation, Convolution1D, MaxPooling1D, Flatten, RepeatVector, AveragePooling1D
 from keras.optimizers import SGD, RMSprop, Adadelta, Adagrad, Adam, Adamax
 from keras.layers.advanced_activations import ELU, PReLU
 from sklearn import metrics
@@ -60,6 +60,7 @@ trainFile = sys.argv[1]
 pickleFile = sys.argv[2]
 
 xTrain = pd.read_csv(trainFile)
+xTrain = xTrain.reindex(np.random.permutation(xTrain.index))
 y = xTrain['TARGET']
 zeroClass = xTrain['TARGET'] == 0
 oneClass = xTrain['TARGET'] == 1
@@ -123,44 +124,43 @@ y = y.as_matrix().astype('int32')
 print(y.shape)
 
 '''net = Sequential()
-net.add(Convolution1D(nb_filter=100, filter_length=3, border_mode='valid', input_shape=(xTrain.shape[1],1), init='uniform'))
+net.add(Convolution1D(nb_filter=20, filter_length=3, border_mode='valid', input_shape=(xTrain.shape[1],1), init='glorot_uniform'))
 net.add(ELU())
 net.add(MaxPooling1D(2))
 net.add(Dropout(0.5))
-#net.add(Convolution1D(50, 5, init='uniform', activation='tanh'))
+net.add(Convolution1D(40, 3, init='glorot_uniform', activation='tanh'))
 #net.add(MaxPooling1D(2))
 #net.add(Dropout(0.5))
-#net.add(Convolution1D(80, 5, init='uniform'))
+#net.add(Convolution1D(80, 4, init='glorot_uniform', activation='tanh'))
 #net.add(MaxPooling1D(2))
 #net.add(Dropout(0.5))
 net.add(Flatten())
-net.add(Dense(200, init='uniform', activation='tanh'))
-#net.add(ELU())
+net.add(Dense(256, init='glorot_uniform', activation='tanh'))
 net.add(Dropout(0.5))
-net.add(Dense(100, init='uniform', activation='tanh'))
-net.add(Dropout(0.5))
-net.add(Dense(50, init='uniform'))
+net.add(Dense(128, init='glorot_uniform'))
 net.add(ELU())
 net.add(Dropout(0.5))
-net.add(Dense(25, init='uniform', activation='tanh'))
+net.add(Dense(64, init='glorot_uniform', activation='tanh'))
+net.add(Dropout(0.5))
+net.add(Dense(32, init='glorot_uniform', activation='tanh'))
+#net.add(Dropout(0.5))
+#net.add(Dense(32, init='glorot_uniform'))
 #net.add(ELU())
 #net.add(Dropout(0.5))
-#net.add(Dense(5, init='uniform', activation='tanh'))
-#net.add(Dropout(0.5))
-#net.add(Dense(40, init='uniform', activation='tanh'))
+#net.add(Dense(16, init='uniform', activation='tanh'))
 #net.add(Dense(2, init='uniform', activation='softmax'))
-net.add(Dense(1, init='uniform', activation='sigmoid'))'''
+net.add(Dense(1, init='glorot_uniform', activation='sigmoid'))'''
 
 net = Sequential()
-net.add(Dense(320, input_dim=xTrain.shape[1], init='glorot_uniform'))
-net.add(ELU())
+net.add(Dense(320, input_dim=xTrain.shape[1], init='glorot_uniform', activation='tanh'))
+#net.add(ELU())
 net.add(Dropout(0.5))
-net.add(Dense(160, init='glorot_uniform', activation='sigmoid'))
-net.add(Dropout(0.5))
+net.add(Dense(160, init='glorot_uniform', activation='tanh'))
+'''net.add(Dropout(0.5))
 net.add(Dense(80, init='glorot_uniform'))
 net.add(ELU())
 net.add(Dropout(0.5))
-net.add(Dense(40, init='glorot_uniform', activation='softplus'))
+net.add(Dense(40, init='glorot_uniform', activation='tanh'))'''
 '''#net.add(Dropout(0.5))
 net.add(Dense(20, init='uniform'))
 net.add(ELU())
@@ -175,10 +175,10 @@ optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-10)
 #optimizer = Adagrad(lr=0.01, epsilon=1e-06)
 #optimizer =  Adadelta(lr=1.0, rho=0.95, epsilon=1e-06)
 #optimizer = Adamax(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
-#net.compile(loss=binary_crossentropy_with_ranking,
-#              optimizer=optimizer, class_mode='binary')
-net.compile(loss='binary_crossentropy',
-               optimizer=optimizer, class_mode='binary')
+net.compile(loss=binary_crossentropy_with_ranking,
+              optimizer=optimizer, class_mode='binary')
+#net.compile(loss='binary_crossentropy',
+#               optimizer=optimizer, class_mode='binary')
 #net.compile(loss='hinge',
 #               optimizer=optimizer, class_mode='binary')
 
@@ -191,7 +191,10 @@ net.fit(xTrain, y,
           #shuffle=True,
           class_weight={0:0.0396, 1:0.9604})
 
-#score = model.evaluate(X_test, y_test, batch_size=16)
+predictY = net.predict_proba(xTrain)[:,0]
+from sklearn.metrics import roc_auc_score
+
+print(roc_auc_score(y, predictY))
 
 with open(pickleFile,'wb') as f:
   sys.setrecursionlimit(20000)

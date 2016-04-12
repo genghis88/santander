@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import random
 
 predictionsFlie = sys.argv[1]
+predictionsFlie = 'predictions/trees22.csv'
 preds = pd.read_csv(predictionsFlie)
 
 predictions = preds['TARGET']
-
-plt.hist(predictions, bins=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+plt.hist(predictions, bins=np.linspace(0,1,51))
 
 def rescale(val):
   if val <= 0.2:
@@ -24,7 +24,7 @@ def rescale(val):
 
 predictions = predictions.apply(rescale)
 
-print(predictions)
+#print(predictions)
 
 preds['TARGET'] = predictions
 
@@ -33,3 +33,4 @@ preds.to_csv('predictions/test.csv', index=False)
 #plt.hist(predictions, bins=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
 
 plt.show()
+

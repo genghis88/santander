@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import random
 
 predictionsFlie = sys.argv[1]
-predictionsFlie = 'predictions/trees22.csv'
+#predictionsFlie = 'predictions/trees22.csv'
 preds = pd.read_csv(predictionsFlie)
 
 predictions = preds['TARGET']

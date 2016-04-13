@@ -3,6 +3,7 @@ import sys
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import normalize
 
 trainFile = sys.argv[1]
 testFile = sys.argv[2]
@@ -55,10 +56,12 @@ transformedXTrain = scaler.transform(transformedXTrain)
 transformedXTest = pca.transform(xTest)
 transformedXTest = scaler.transform(transformedXTest)'''
 
-scaler = StandardScaler()
-scaler.fit(xTrain)
-transformedXTrain = scaler.transform(xTrain)
-transformedXTest = scaler.transform(xTest)
+#scaler = StandardScaler()
+#scaler.fit(xTrain)
+#transformedXTrain = scaler.transform(xTrain)
+#transformedXTest = scaler.transform(xTest)
+transformedXTrain = normalize(xTrain, axis=0)
+transformedXTest = normalize(xTest, axis=0)
 
 trainDF = pd.DataFrame(transformedXTrain, index=trainIds)
 trainDF.index.name = 'ID'
